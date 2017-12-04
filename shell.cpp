@@ -30,6 +30,31 @@ int main() {
 		if(num_words == 0) {
 			continue;
 		}
+		if(!strcmp(command[0], "exit")) {
+			kill(0, SIGKILL);
+		}
+		pid_t pid = fork();
+		
+		if(pid > 0) { // parent
+			if(!is_background){
+				int status;
+				waitpid(pid, &status, 0);
+			}
+		} else if(pid == 0) { // child
+			// cd is handled explicitly
+			int r = 0;
+			if(!strcmp(command[0], "cd")) {
+				r = chdir(command[1]==NULL? "" : command[1]);
+			} else {
+				r = execvp(command[0], command);
+			}
+			if(r < 0) {
+				perror ("Error");
+			}
+			
+		} else { // error
+			
+		}
 		
 		for(int i = 0; i <= num_words; i++) {
 			delete[] command[i];
